@@ -67,11 +67,22 @@ const StyledToggle = styled(Button)`
     }
 `;
 
+const signupInitialValues = {
+    name: '',
+    username: '',
+    password: ''
+}
+
 const Login = () => {
     const [showLogin, setShowLogin] = useState(true);
+    const [signup,setSignup] = useState(signupInitialValues)
 
     const toggleView = () => {
         setShowLogin(!showLogin);
+    };
+
+    const onInputChange = (e) => {
+        setSignup({...signup , [e.target.name]: e.target.value});
     };
 
     return (
@@ -87,9 +98,9 @@ const Login = () => {
                     </Box>
                 ) : (
                     <Box>
-                        <StyledTextField id="name" label="Name" variant="standard" />
-                        <StyledTextField id="username" label="Username" variant="standard" />
-                        <StyledTextField id="password" label="Password" type="password" variant="standard" />
+                        <StyledTextField id="name" name='name' label="Name" variant="standard" onChange={(e)=>{onInputChange(e)}}  />
+                        <StyledTextField id="username" name='username' label="Username" variant="standard" onChange={(e)=>{onInputChange(e)}}/>
+                        <StyledTextField id="password" name='password' label="Password" type="password" variant="standard" onChange={(e)=>{onInputChange(e)}} />
                         <StyledButton variant="contained">Create Account</StyledButton>
                         <StyledToggle onClick={toggleView}>Log In</StyledToggle>
                     </Box>
