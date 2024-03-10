@@ -4,6 +4,11 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 const app = express();
+
+import router from './routes/route.js';
+app.use('/',router)
+
+
 const PORT = 8000;
 
 app.listen(PORT,()=>{
