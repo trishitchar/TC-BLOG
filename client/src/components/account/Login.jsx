@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Box, TextField, Button, styled } from '@mui/material';
+import {API} from '../../service/api'
 
 const imageURL = 'https://www.sesta.it/wp-content/uploads/2021/03/logo-blog-sesta-trasparente.png';
 const backgroundImageURL = 'https://source.unsplash.com/1080x2400?sunset+birdeye+ocean';
@@ -85,6 +86,21 @@ const Login = () => {
         setSignup({...signup , [e.target.name]: e.target.value});
     };
 
+    // Perform signup action
+const signupUser = async () => {
+    try {
+      // Call the API for user signup
+      let response = await API.userSignup(signup);
+      // Handle the response as needed
+      console.log('Signup response:', response);
+      // Add your logic to handle the response, for example, show a success message to the user
+    } catch (error) {
+      console.error('Error signing up user:', error);
+      // Handle error, e.g., show an error message to the user
+    }
+  };
+  
+
     return (
         <OuterContainer>
             <StyledContainer>
@@ -101,7 +117,7 @@ const Login = () => {
                         <StyledTextField id="name" name='name' label="Name" variant="standard" onChange={(e)=>{onInputChange(e)}}  />
                         <StyledTextField id="username" name='username' label="Username" variant="standard" onChange={(e)=>{onInputChange(e)}}/>
                         <StyledTextField id="password" name='password' label="Password" type="password" variant="standard" onChange={(e)=>{onInputChange(e)}} />
-                        <StyledButton variant="contained">Create Account</StyledButton>
+                        <StyledButton onClick={()=>{signupUser()}} variant="contained">Create Account</StyledButton>
                         <StyledToggle onClick={toggleView}>Log In</StyledToggle>
                     </Box>
                 )}
