@@ -3,9 +3,16 @@ import Connection from './DB/db.js';
 import dotenv from 'dotenv'
 dotenv.config()
 
+import bodyParser from 'body-parser';
+
+import cors from 'cors'
+
 const app = express();
 
 import router from './routes/route.js';
+app.use(cors())
+app.use(bodyParser.json({extended:true}))
+app.use(bodyParser.urlencoded({extended: true}))
 app.use('/',router)
 
 

@@ -1,0 +1,2 @@
+export const backgroundImageURL = 'https://source.unsplash.com/1080x2400?sunset+birdeye+ocean';
+export const imageURL = 'https://www.sesta.it/wp-content/uploads/2021/03/logo-blog-sesta-trasparente.png';

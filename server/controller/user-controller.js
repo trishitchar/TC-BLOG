@@ -13,7 +13,7 @@ export const signupUser = async (req,res) => {
             msg: "signup successfull"
         })
     }catch(e){
-        return res.staus(400).json({
+        return res.status(400).json({
             msg: "signup not successfull"
         })
     }
