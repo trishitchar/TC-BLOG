@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { API_NOTIFICATION_msg, SERVICE_URLS } from '../constants/config';
+import { API_NOTIFICATION_MESSAGES, SERVICE_URLS } from '../constants/config';
 
 const API_URL = 'http://localhost:8000/';
 
@@ -7,22 +7,34 @@ const axiosInstance = axios.create({
     baseURL: API_URL,
     timeout: 10000,
     headers: {
-        "Content-Type": "application/json"
+        "content-type": "application/json"
     }
 });
 
-axiosInstance.interceptors.request.use((config) => {
-    return config;
+axiosInstance.interceptors.request.use(
+    (config) => {
+        // if(config.responseType.params){
+        //     config.params = config.responseType.params
+        // }else if(config.TYPE && config.TYPE.query){
+        //     config.url = config.url+ '/' + config.TYPE.query
+        // }
+        return config;
 }, (error) => {
+    console.log("Request interceptor error:", error)
     return Promise.reject(error);
 });
 
-axiosInstance.interceptors.response.use((response) => {
-    // stop global loader here
-    return processResponse(response);
-}, (error) => {
-    return Promise.reject(processError(error)); // Fix: Pass 'error' instead of 'response'
-});
+/*
+    Expects: {status: string, data: object, message: string, code: int}
+    returns {isSuccess: bool, status: string, data: object, message: string, code: int}
+*/
+
+// axiosInstance.interceptors.response.use((response) => {
+//     // stop global loader here
+//     return processResponse(response);
+// }, (error) => {
+//     return Promise.reject(processError(error)); 
+// });
 
 /*
     if success -> return { isSuccess: true, data: object }
@@ -30,19 +42,8 @@ axiosInstance.interceptors.response.use((response) => {
 */
 
 const processResponse = (response) => {
-    if (response?.status === 200) {
-        return {
-            isSuccess: true,
-            data: response.data
-        };
-    } else {
-        return {
-            isFailure: true,
-            status: response?.status,
-            msg: response?.msg,
-            code: response?.code
-        };
-    }
+    response["isSuccess"] = response.status >=200 && response.status<300;
+    return response;
 };
 
 // 3 types of error - response error and request error and network error
@@ -50,57 +51,62 @@ const processResponse = (response) => {
     if success -> return { isSuccess: true, data: object }
     if failed -> return { isError: true, msg: string, code: int }
 */
-const processError = (error) => { // Fix: Accept 'error' instead of 'response'
+const processError = async (error) => { // Fix: Accept 'error' instead of 'response'
     if (error.response) {
         // request made and server responded with another code
         // that falls out of the range 200-299
-        console.log('error in response', error.toJSON());
+        console.log('error in response', error);
         return {
-            isError: true,
-            msg: API_NOTIFICATION_msg.responseFailure,
+            // isError: true,
+            // msg: error.response.data.msg || API_NOTIFICATION_MESSAGES.responseFailure,
+            error: API_NOTIFICATION_MESSAGES.responseFailure,
             code: error.response.status
         };
     } else if (error.request) {
         // request made but no response was received
         // network issue connectivity issue
-        console.log('error in request', error.toJSON());
+        console.log('error in request', error);
         return {
-            isError: true,
-            msg: API_NOTIFICATION_msg.requestFailure,
+            // isError: true,
+            // msg: API_NOTIFICATION_MESSAGES.requestFailure.message,
+            error: API_NOTIFICATION_MESSAGES.networkError,
             code: ""
         };
     } else {
         // something happens in setting up the request that triggers an error
-        console.log('error in network', error.toJSON());
+        console.log('error in network', error);
         return {
-            isError: true,
-            msg: API_NOTIFICATION_msg.networkError,
+            // isError: true,
+            // msg: API_NOTIFICATION_MESSAGES.networkError.
+            // message,
+            error: API_NOTIFICATION_MESSAGES.requestFailure,
             code: ""
         };
     }
 };
+axiosInstance.interceptors.response.use(processResponse, processError);
 
 const API = {};
 
 for (const [key, value] of Object.entries(SERVICE_URLS)) {
     API[key] = (body, showUploadProgress, showDownloadProgress) => {
-        axiosInstance({
+        return axiosInstance({
             method: value.method,
             url: value.url,
-            data: body,
+            data: value.method === 'DELETE' ? '':body,
             responseType: value.responseType,
             onUploadProgress: function (progressEvent) {
                 if (showUploadProgress) {
-                    let percentageComplete = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-                    showUploadProgress(percentageComplete);
+                    let percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                    showUploadProgress(percentCompleted);
                 }
             },
             onDownloadProgress: function (progressEvent) {
                 if (showDownloadProgress) {
-                    let percentageComplete = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-                    showDownloadProgress(percentageComplete);
+                    let percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                    showDownloadProgress(percentCompleted);
                 }
-            },
+            }
         });
     };
 }

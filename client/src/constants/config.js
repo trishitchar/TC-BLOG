@@ -1,7 +1,5 @@
-// config.js
-
 // API NOTIFICATION msg
-export const API_NOTIFICATION_msg = {
+export const API_NOTIFICATION_MESSAGES = {
     loading: {
         title: 'Data is loading',
         message: 'Data is being loaded',
@@ -30,5 +28,11 @@ export const SERVICE_URLS = {
     userSignup: {
         url: '/signup',
         method: 'POST',
+        // responseType:{
+        //     isSuccess: Boolean,  // Indicate whether the request was successful
+        //     data: Object,        // The actual data returned by the server (if any)
+        //     msg: String,         // A message providing additional information (if needed)
+        //     code: Number 
+        // }
     },
 };

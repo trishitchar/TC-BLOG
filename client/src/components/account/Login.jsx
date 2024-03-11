@@ -4,6 +4,11 @@ import {API} from '../../service/api'
 import { OuterContainer,StyledContainer, StyledImage, StyledTextField, StyledButton, StyledToggle, ErrorCss } from './styles'; 
 import {imageURL} from './img'
 
+const loginInitialValues = {
+    username:'',
+    password:''
+}
+
 const signupInitialValues = {
     name: '',
     username: '',
@@ -12,6 +17,8 @@ const signupInitialValues = {
 
 const Login = () => {
     const [showLogin, setShowLogin] = useState(true);
+
+    const [login,setLogin] = useState(loginInitialValues);
     const [signup, setSignup] = useState(signupInitialValues);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -20,25 +27,33 @@ const Login = () => {
         setShowLogin(!showLogin);
     };
 
+    const onValueChange = (e) =>{
+        setLogin({...login, [e.target.name]: e.target.value});
+    }
+
     const onInputChange = (e) => {
         setSignup({ ...signup, [e.target.name]: e.target.value });
     };
+
+    const loginUser = async () =>{
+        let response = await API.userLogin(login);
+        if(response  && response.isSuccess){
+            setError('');
+        }
+    }
 
     // Perform signup action
     const signupUser = async () => {
         try {
             setLoading(true);
             let response = await API.userSignup(signup);
-            console.log('Signup response:', response);
-
             if(response.isSuccess) {
                 setError('');
                 setSignup(signupInitialValues);
                 toggleView();
             } else {
-                setError(response.msg || 'Something went wrong');
+                setError(response.error.message || 'Failed to submit POST req');
             }
-              
         } catch (error) {
             console.error('Error signing up user:', error);
             setError(error.message || 'An unexpected error occurred');
@@ -56,7 +71,7 @@ const Login = () => {
                         <StyledTextField id="username" label="Username" variant="standard" />
                         <StyledTextField id="password" label="Password" type="password" variant="standard" />
                         {error && <ErrorCss>{error}</ErrorCss>}
-                        <StyledButton variant="contained" disabled={loading}>Log In</StyledButton>
+                        <StyledButton onClick={(e)=>{onValueChange(e)}} variant="contained" disabled={loading} >Log In</StyledButton>
                         <StyledToggle onClick={toggleView}>Create an Account</StyledToggle>
                     </Box>
                 ) : (
