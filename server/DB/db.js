@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 
-
 const Connection = async (USERNAME,PASSWORD) => {
     try {
         await mongoose.connect(`mongodb+srv://${USERNAME}:${PASSWORD}@cluster0.jyuljvy.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`);
